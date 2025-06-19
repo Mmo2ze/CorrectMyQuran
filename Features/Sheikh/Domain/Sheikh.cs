@@ -1,3 +1,4 @@
+using CorectMyQuran.Common;
 using CorectMyQuran.DateBase.Common.Models;
 
 namespace CorectMyQuran.Features.Sheikh.Domain;
@@ -18,6 +19,21 @@ public class Sheikh:Aggregate<SheikhId>
         Name = name;
         Password = password;
         Phone = phone;
+        Id = id;
+    }
+
+    public static (Sheikh,string password) CreateSheikh(string name, string phone)
+    {
+        var password = RandomPassword.Generate();
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
+        var id = SheikhId.CreateUnique();
+        var sheikh = new Sheikh(id, name, hashedPassword, phone);
+        return (sheikh, password);
+    }
+    
+    public bool VerifyPassword(string password)
+    {
+        return BCrypt.Net.BCrypt.Verify(password, Password);
     }
     
 }
